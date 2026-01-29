@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "625297648979",
+    "project_id": "adroit-hall-451612-t1",
+    "storage_bucket": "adroit-hall-451612-t1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:625297648979:android:b252d75f3af3bde52d85a6",
+        "android_client_info": {
+          "package_name": "com.starsky.snapstar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "625297648979-5psl745jpqn310965kndho6d4osoac4b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.starsky.snapstar",
+            "certificate_hash": "f8c55fc160848d2053c30adff3a4b3017766f8ee"
+          }
+        },
+        {
+          "client_id": "625297648979-4323rctereuc67thqvbgehtdbmfch8jq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcZ_-dg0L2hEhZVCGCXyod8XuQBQYrWfY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "625297648979-4323rctereuc67thqvbgehtdbmfch8jq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "625297648979-sbb45lhkek29fh46jejeut3d5cmourt9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.starsky.snapstar"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
