@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:snapstar/app/data/models/user_model.dart';
 import 'package:snapstar/app/data/providers/notification_provider.dart';
 import 'package:snapstar/app/data/repositories/auth_repository.dart';
 
 import '../../../core/constants/firebase_constants.dart';
-import '../../../data/models/user_model.dart';
 import '../../../routes/app_routes.dart';
 
 class ProfileSetupController extends GetxController {

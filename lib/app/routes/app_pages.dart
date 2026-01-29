@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:snapstar/app/modules/login_view/bindings/login_binding.dart';
 import 'package:snapstar/app/modules/login_view/views/login_screen.dart';
+import 'package:snapstar/app/modules/main_view/bindings/main_binding.dart';
+import 'package:snapstar/app/modules/main_view/views/main_screen.dart';
 import 'package:snapstar/app/modules/profile_setup_view/bindings/profile_setup_binding.dart';
 import 'package:snapstar/app/modules/profile_setup_view/views/profile_setup_screen.dart';
 import 'package:snapstar/app/modules/register_view/bindings/register_binding.dart';
@@ -30,6 +32,11 @@ class AppPages {
       name: Routes.profileSetup,
       page: () => ProfileSetupScreen(),
       binding: ProfileSetupBinding(),
+    ),
+    GetPage(
+      name: Routes.main,
+      page: () => MainScreen(),
+      binding: MainBinding(),
     ),
 
   ];

@@ -51,6 +51,8 @@ class RegisterController extends GetxController {
         passwordController.text.trim(),
       );
 
+      debugPrint("register user: $user");
+
       if (user != null) {
         Get.toNamed(
           Routes.profileSetup,

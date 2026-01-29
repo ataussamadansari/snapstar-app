@@ -8,11 +8,9 @@ class LoginController extends GetxController {
   final AuthRepository _repository = Get.find<AuthRepository>();
 
   final loginFormKey = GlobalKey<FormState>();
-
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  // Focus nodes
   final emailFocus = FocusNode();
   final passwordFocus = FocusNode();
 
@@ -20,25 +18,43 @@ class LoginController extends GetxController {
   RxBool isPasswordVisible = false.obs;
 
   Future<void> onLogin() async {
+    // 1. Keyboard dismiss karein
     FocusManager.instance.primaryFocus?.unfocus();
 
+    // 2. Validation check
     if (!loginFormKey.currentState!.validate()) return;
 
     try {
       isLoading.value = true;
 
+      // 3. Firebase Login
       final user = await _repository.login(
         emailController.text.trim(),
         passwordController.text.trim(),
       );
 
       if (user != null) {
-        Get.offAllNamed(Routes.main);
+        // 4. Keyboard band hone ka thoda wait (Smooth transition ke liye)
+        await Future.delayed(const Duration(milliseconds: 200));
+
+        // 5. Firestore check
+        final isCompleted = await _repository.isProfileCompleted(user.uid);
+
+        if (isCompleted) {
+          Get.offAllNamed(Routes.main);
+        } else {
+          // Profile incomplete hai, data bhej kar setup par le jayein
+          Get.offAllNamed(Routes.profileSetup, arguments: {
+            'uid': user.uid,
+            'email': user.email ?? emailController.text.trim(),
+            'name': user.displayName ?? 'user',
+          });
+        }
       }
     } catch (e) {
       Get.snackbar(
-        "Login Failed",
-        e.toString(),
+        "Login Error",
+        e.toString().split(']').last, // Firebase error code hide karke message dikhayein
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red.withOpacity(0.1),
       );

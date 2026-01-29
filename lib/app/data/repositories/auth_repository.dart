@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:snapstar/app/core/constants/firebase_constants.dart';
 import 'package:snapstar/app/data/models/user_model.dart';
 
@@ -9,10 +10,12 @@ class AuthRepository {
   final FirebaseAuthProvider provider;
   AuthRepository(this.provider);
 
+
   Future<User?> login(String email, String password) async {
     final result = await provider.login(email, password);
     return result.user;
   }
+
 
   Future<User?> register(String email, String password) async {
     final result = await provider.register(email, password);
