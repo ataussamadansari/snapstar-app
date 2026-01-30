@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:snapstar/app/modules/home_view/views/home_screen.dart';
+import 'package:snapstar/app/modules/post_view/views/post_screen.dart';
+import 'package:snapstar/app/modules/profile_view/views/profile_screen.dart';
 import 'package:snapstar/app/modules/search_view/views/search_screen.dart';
 import '../../../globle_widgets/custom_bottom_nav.dart';
 import '../controllers/main_controller.dart';
@@ -13,9 +15,9 @@ class MainScreen extends GetView<MainController> {
     final pages = const [
       HomeScreen(),
       SearchScreen(),
-      Center(child: Text("Add Post")),
+      PostScreen(),
       Center(child: Text("Reels")),
-      Center(child: Text("Profile")),
+      ProfileScreen(),
     ];
 
     return Scaffold(

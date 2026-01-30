@@ -10,5 +10,6 @@ class AppBindings extends Bindings {
     Get.put(FirebaseAuthProvider(), permanent: true);
     Get.put(AuthRepository(Get.find()), permanent: true);
     Get.put(SplashController(), permanent: true);
+    // Get.put(PostController(), permanent: true);
   }
 }

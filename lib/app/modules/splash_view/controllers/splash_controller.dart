@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:snapstar/app/core/constants/firebase_constants.dart';
 
@@ -15,7 +14,7 @@ class SplashController extends GetxController {
   }
 
   Future<void> _checkAuth() async {
-    await Future.delayed(Duration(seconds: 3));
+    await Future.delayed(Duration(seconds: 1));
     final user = firebaseAuth.currentUser;
 
     if (user == null) {
@@ -25,8 +24,6 @@ class SplashController extends GetxController {
 
     final isCompleted =
     await _repository.isProfileCompleted(user.uid);
-
-    debugPrint("uid: ${user.uid}");
 
     if (isCompleted) {
       Get.offAllNamed(Routes.main);

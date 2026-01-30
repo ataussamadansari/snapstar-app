@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:snapstar/app/core/constants/firebase_constants.dart';
 import 'package:snapstar/app/data/models/user_model.dart';
 

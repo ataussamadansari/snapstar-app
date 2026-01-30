@@ -44,6 +44,7 @@ class UserModel {
     required this.isOnline,
     required this.createdAt,
     required this.updatedAt,
+
   });
 
   /// Firestore → UserModel
