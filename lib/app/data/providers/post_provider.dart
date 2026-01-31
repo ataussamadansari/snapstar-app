@@ -41,4 +41,19 @@ class PostProvider {
       'postsCount': FieldValue.increment(1),
     });
   }
+
+  Stream<List<Map<String, dynamic>>> getGlobalFeed() {
+    return db.collection('posts')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snap) => snap.docs.map((d) => d.data()).toList());
+  }
+
+  Stream<List<Map<String, dynamic>>> getUserPosts(String uid) {
+    return db.collection('posts')
+        .where('userId', isEqualTo: uid)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snap) => snap.docs.map((d) => d.data()).toList());
+  }
 }

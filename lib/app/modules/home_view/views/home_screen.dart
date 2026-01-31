@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../data/models/post_model.dart';
 import '../../../data/models/story_model.dart' hide MediaType;
 import '../../../data/models/user_model.dart';
 import '../../../globle_widgets/post_card.dart';
@@ -19,7 +18,7 @@ class HomeScreen extends GetView<HomeController> {
             scrolledUnderElevation: 0,
             title: const Row(
               children: [
-                Icon(Icons.star, color: Colors.deepPurple),
+                Icon(Icons.star, color: Colors.indigo),
                 SizedBox(width: 4),
                 Text("SnapStar", style: TextStyle(fontFamily: "Serif", fontWeight: FontWeight.bold)),
               ],
@@ -110,7 +109,7 @@ class HomeScreen extends GetView<HomeController> {
         children: [
           CircleAvatar(
             radius: 38,
-            backgroundColor: Colors.deepPurple,
+            backgroundColor: Colors.indigo,
             child: CircleAvatar(
               radius: 35,
               backgroundImage: NetworkImage(story.userImage),

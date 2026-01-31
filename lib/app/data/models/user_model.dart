@@ -55,7 +55,7 @@ class UserModel {
       username: map['username'] ?? '',
       email: map['email'] ?? '',
       phone: map['phone'] ?? '',
-      photoUrl: map['photoUrl'] ?? '',
+      photoUrl: map['photoUrl'] ?? 'https://firebasestorage.googleapis.com/v0/b/adroit-hall-451612-t1.firebasestorage.app/o/download.jfif?alt=media&token=f6abeddb-c618-4b5e-b542-a747cf67caea',
       bio: map['bio'] ?? '',
       followerCount: map['followerCount'] ?? 0,
       followingCount: map['followingCount'] ?? 0,

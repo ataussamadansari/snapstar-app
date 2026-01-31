@@ -9,7 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:snapstar/app/core/constants/firebase_constants.dart';
 import 'package:snapstar/app/core/utils/selected_media.dart';
 import 'package:snapstar/app/data/models/user_model.dart';
-import 'package:snapstar/app/data/repositories/post_repostitory.dart';
+import 'package:snapstar/app/data/repositories/post_repository.dart';
 import 'package:snapstar/app/data/repositories/user_repository.dart';
 
 import '../../main_view/controllers/main_controller.dart';

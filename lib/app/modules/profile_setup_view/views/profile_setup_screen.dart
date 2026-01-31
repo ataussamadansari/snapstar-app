@@ -31,7 +31,7 @@ class ProfileSetupScreen extends GetView<ProfileSetupController> {
                         labelText: "Username",
                         prefixText: "@ ",
                         border: OutlineInputBorder(),
-                        helperText: "Must be unique (e.g., devize_tech)",
+                        helperText: "Must be unique (e.g., jonh_smith)",
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) return "Username is required";

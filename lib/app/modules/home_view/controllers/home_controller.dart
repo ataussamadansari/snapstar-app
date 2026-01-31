@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:snapstar/app/data/repositories/post_repository.dart';
 
 import '../../../data/models/post_model.dart';
 import '../../../data/models/story_model.dart';
@@ -7,26 +8,27 @@ import '../../../data/repositories/home_repository.dart';
 import '../../../data/repositories/user_repository.dart';
 
 class HomeController extends GetxController {
-  final HomeRepository _repository = HomeRepository();
+  final PostRepository _postRepo = PostRepository();
   final UserRepository _userRepo = UserRepository();
 
-  var allPosts = <PostModel>[].obs;
-  var allStories = <StoryModel>[].obs;
-  var currentUser = Rxn<UserModel>();
-  var isLoading = true.obs;
+  final allPosts = <PostModel>[].obs;
+  final allStories = <StoryModel>[].obs;
+  final currentUser = Rxn<UserModel>();
+  final isLoading = true.obs;
 
   @override
   void onInit() {
     super.onInit();
-    fetchCurrentUser();
-    syncHomeData();
+    _loadCurrentUser();
+    _postRepo.getHomePosts().listen(allPosts.assignAll);
+    // _syncHome();
   }
 
-  void fetchCurrentUser() async {
+  void _loadCurrentUser() async {
     currentUser.value = await _userRepo.getCurrentUserDetails();
   }
-
-  void syncHomeData() {
+/*
+  void _syncHome() {
     _repository.getHomePosts().listen((posts) {
       allPosts.assignAll(posts);
       isLoading.value = false;
@@ -35,5 +37,5 @@ class HomeController extends GetxController {
     _repository.getHomeStories().listen((stories) {
       allStories.assignAll(stories);
     });
-  }
+  }*/
 }

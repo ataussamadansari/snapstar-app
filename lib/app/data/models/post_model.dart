@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:snapstar/app/data/models/user_model.dart';
+import '../models/user_snapshot.dart';
 
 enum MediaType { image, video, mixed }
 
@@ -18,11 +18,12 @@ class PostModel {
   final bool isDeleted;
   final String? location;
   final List<String>? tags;
-  UserModel? user;
+  final UserSnapshot user;
 
   PostModel({
     required this.postId,
     required this.userId,
+    required this.user,
     required this.caption,
     required this.mediaType,
     required this.mediaUrls,
@@ -35,13 +36,13 @@ class PostModel {
     this.isDeleted = false,
     this.location,
     this.tags,
-    this.user,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'postId': postId,
       'userId': userId,
+      'user': user.toMap(),
       'caption': caption,
       'mediaType': mediaType.name,
       'mediaUrls': mediaUrls,
@@ -61,6 +62,7 @@ class PostModel {
     return PostModel(
       postId: map['postId'] ?? '',
       userId: map['userId'] ?? '',
+      user: UserSnapshot.fromMap(map['user']),
       caption: map['caption'] ?? '',
       mediaType: MediaType.values.firstWhere((e) => e.name == map['mediaType']),
       mediaUrls: List<String>.from(map['mediaUrls']),
