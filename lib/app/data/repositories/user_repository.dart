@@ -6,25 +6,18 @@ import 'package:snapstar/app/data/providers/user_provider.dart';
 class UserRepository {
   final UserProvider provider = UserProvider();
 
-  /// Current logged-in user
+  Future<UserModel?> getUser(String uid) {
+    return provider.getUser(uid);
+  }
+
   Future<UserModel?> getCurrentUserDetails() async {
     final user = firebaseAuth.currentUser;
     if (user == null) return null;
-    return await provider.getUserData(user.uid);
+    return provider.getUser(user.uid);
   }
 
-  /// Any user by id
-  Future<UserModel?> getUserDetailsById(String userId) async {
-    try {
-      return await provider.getUserData(userId);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  /// 🔥 FINAL & CORRECT SNAPSHOT METHOD
   Future<UserSnapshot?> getUserSnapShot(String uid) async {
-    final user = await getUserDetailsById(uid);
+    final user = await getUser(uid);
     if (user == null) return null;
 
     return UserSnapshot(
@@ -38,16 +31,8 @@ class UserRepository {
   Future<UserSnapshot?> getCurrentUserSnapshot() async {
     final user = firebaseAuth.currentUser;
     if (user == null) return null;
-
-    final userModel = await provider.getUserData(user.uid);
-    if (userModel == null) return null;
-
-    return UserSnapshot(
-      uid: userModel.uid,
-      username: userModel.username,
-      name: userModel.name,
-      photoUrl: userModel.photoUrl,
-    );
+    return getUserSnapShot(user.uid);
   }
 
 }
+

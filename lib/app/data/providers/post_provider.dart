@@ -5,31 +5,21 @@ import 'package:snapstar/app/core/utils/selected_media.dart';
 import 'package:snapstar/app/data/models/post_model.dart';
 
 class PostProvider {
-
-  Future<List<Map<String, dynamic>>> getUserPostsRaw(String uid) async {
-    final snap = await db.collection('posts')
-        .where('userId', isEqualTo: uid)
+  Stream<List<Map<String, dynamic>>> getGlobalPosts() {
+    return db
+        .collection('posts')
         .orderBy('createdAt', descending: true)
-        .get();
-
-    return snap.docs.map((doc) => doc.data()).toList();
+        .snapshots()
+        .map((s) => s.docs.map((d) => d.data()).toList());
   }
 
-  Future<String> uploadFile(SelectedMedia media, String path) async {
-    try {
-      final ref = storage.ref().child(path);
-
-      // Video ke liye sahi content type set karein
-      final metadata = SettableMetadata(
-        contentType: media.isVideo ? 'video/mp4' : 'image/jpeg',
-      );
-
-      // Pura object nahi balki media.file upload karein
-      final uploadTask = await ref.putFile(media.file, metadata);
-      return await uploadTask.ref.getDownloadURL();
-    } catch (e) {
-      rethrow;
-    }
+  Stream<List<Map<String, dynamic>>> getUserPosts(String uid) {
+    return db
+        .collection('posts')
+        .where('userId', isEqualTo: uid)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((s) => s.docs.map((d) => d.data()).toList());
   }
 
   Future<void> savePost(PostModel post) async {
@@ -42,18 +32,13 @@ class PostProvider {
     });
   }
 
-  Stream<List<Map<String, dynamic>>> getGlobalFeed() {
-    return db.collection('posts')
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snap) => snap.docs.map((d) => d.data()).toList());
-  }
-
-  Stream<List<Map<String, dynamic>>> getUserPosts(String uid) {
-    return db.collection('posts')
-        .where('userId', isEqualTo: uid)
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snap) => snap.docs.map((d) => d.data()).toList());
+  Future<String> uploadFile(SelectedMedia media, String path) async {
+    final ref = storage.ref().child(path);
+    final metadata = SettableMetadata(
+      contentType: media.isVideo ? 'video/mp4' : 'image/jpeg',
+    );
+    final task = await ref.putFile(media.file, metadata);
+    return task.ref.getDownloadURL();
   }
 }
+

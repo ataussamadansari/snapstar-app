@@ -43,14 +43,14 @@ class _CommentSheetState extends State<CommentSheet> {
 
     return SafeArea(
       child: DraggableScrollableSheet(
-        initialChildSize: 0.5,
+        initialChildSize: 0.6, // Thoda size badha diya
+        minChildSize: 0.4,
+        maxChildSize: 0.95,
         expand: false,
         builder: (_, scrollCtrl) {
 
-          /// 🔥 PAGINATION LISTENER (RIGHT PLACE)
           scrollCtrl.addListener(() {
-            if (scrollCtrl.position.pixels >=
-                scrollCtrl.position.maxScrollExtent - 200) {
+            if (scrollCtrl.position.pixels >= scrollCtrl.position.maxScrollExtent - 200) {
               controller.loadMore();
             }
           });
@@ -58,18 +58,49 @@ class _CommentSheetState extends State<CommentSheet> {
           return Container(
             decoration: BoxDecoration(
               color: scheme.surface,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
-              ),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             ),
-            child: Stack(
+            child: Column( // Stack ki jagah Column use karein for better structure
               children: [
-                /// 🔥 COMMENTS LIST (ONLY SCROLLABLE AREA)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 80),
-                  child: Obx(
-                    () => ListView.builder(
+                /// ➖ TOP HANDLE LINE
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 12),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+
+                /// 💬 COMMENTS LIST OR EMPTY STATE
+                Expanded(
+                  child: Obx(() {
+                    if (controller.isLoading.value && controller.mainComments.isEmpty) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (controller.mainComments.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.chat_bubble_outline, size: 50, color: Colors.grey.shade400),
+                            const SizedBox(height: 12),
+                            Text(
+                              "No comments yet",
+                              style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
+                            ),
+                            const Text("Be the first to share what you think!",
+                                style: TextStyle(color: Colors.grey, fontSize: 13)),
+                          ],
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
                       controller: scrollCtrl,
+                      padding: const EdgeInsets.only(bottom: 20),
                       itemCount: controller.mainComments.length + (controller.hasMore ? 1 : 0),
                       itemBuilder: (_, i) {
                         if (i == controller.mainComments.length) {
@@ -79,104 +110,81 @@ class _CommentSheetState extends State<CommentSheet> {
                           );
                         }
                         return _buildComment(controller.mainComments[i]);
-                      }
-                    ),
-                  ),
+                      },
+                    );
+                  }),
                 ),
 
-                /// 🔥 BOTTOM AREA (REPLY INFO + INPUT)
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      /// REPLY INFO
-                      Obx(() {
-                        if (controller.replyingToUsername.value == null) {
-                          return const SizedBox.shrink();
-                        }
-                        return Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          color: scheme.surfaceVariant,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  "Replying to @${controller.replyingToUsername.value}",
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.close, size: 16),
-                                onPressed: controller.cancelReply,
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
-
-                      /// INPUT BAR (KEYBOARD SAFE)
-                      AnimatedPadding(
-                        duration: const Duration(milliseconds: 200),
-                        padding: EdgeInsets.only(
-                          bottom: MediaQuery.of(context).viewInsets.bottom,
-                        ),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: scheme.surface,
-                            border: Border(
-                              top: BorderSide(
-                                color: scheme.onSurface.withOpacity(0.1),
-                              ),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: inputCtrl,
-                                  decoration: const InputDecoration(
-                                    hintText: "Add a comment…",
-                                    border: InputBorder.none,
-                                  ),
-                                ),
-                              ),
-                              Obx(
-                                () => IconButton(
-                                  icon: Icon(
-                                    Icons.send,
-                                    color: controller.isLoading.value
-                                        ? scheme.onSurface.withOpacity(0.3)
-                                        : scheme.primary,
-                                  ),
-                                  onPressed: controller.isLoading.value
-                                      ? null
-                                      : () {
-                                          controller.submit(inputCtrl.text);
-                                          inputCtrl.clear();
-                                        },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                /// ⌨️ BOTTOM INPUT AREA
+                _buildInputSection(context, scheme),
               ],
             ),
           );
         },
       ),
+    );
+  }
+
+  /// Helper for Input Area (To keep build clean)
+  Widget _buildInputSection(BuildContext context, ColorScheme scheme) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        /// REPLY INFO
+        Obx(() {
+          if (controller.replyingToUsername.value == null) return const SizedBox.shrink();
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: scheme.surfaceVariant.withOpacity(0.5),
+            child: Row(
+              children: [
+                Expanded(child: Text("Replying to @${controller.replyingToUsername.value}",
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500))),
+                GestureDetector(onTap: controller.cancelReply, child: const Icon(Icons.close, size: 18)),
+              ],
+            ),
+          );
+        }),
+
+        /// INPUT BAR
+        AnimatedPadding(
+          duration: const Duration(milliseconds: 200),
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+            decoration: BoxDecoration(
+              color: scheme.surface,
+              border: Border(top: BorderSide(color: scheme.outlineVariant.withOpacity(0.5))),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: inputCtrl,
+                    maxLines: null, // Auto-expand textfield
+                    decoration: const InputDecoration(
+                      hintText: "Add a comment…",
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                    ),
+                  ),
+                ),
+                Obx(() => IconButton(
+                  icon: Icon(Icons.send, color: controller.isLoading.value ? Colors.grey : scheme.primary),
+                  onPressed: controller.isLoading.value ? null : () {
+                    if (inputCtrl.text.trim().isNotEmpty) {
+                      controller.submit(inputCtrl.text.trim());
+                      inputCtrl.clear();
+                      FocusScope.of(context).unfocus();
+                    }
+                  },
+                )),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 

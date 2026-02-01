@@ -66,12 +66,6 @@ class PostRepository {
     await provider.incrementUserPostCount(userId);
   }
 
-  Stream<List<PostModel>> getHomePosts() {
-    return provider.getGlobalFeed().map(
-          (list) => list.map(PostModel.fromMap).toList(),
-    );
-  }
-
   Stream<List<PostModel>> getUserPosts(String uid) {
     return provider.getUserPosts(uid).map(
           (list) => list.map(PostModel.fromMap).toList(),

@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import '../../../data/models/story_model.dart' hide MediaType;
 import '../../../data/models/user_model.dart';
 import '../../../globle_widgets/post_card.dart';
+import '../../../globle_widgets/suggestion_card.dart';
+import '../../story_view/views/story_screen.dart';
 import '../controllers/home_controller.dart';
 
 class HomeScreen extends GetView<HomeController> {
@@ -13,6 +15,7 @@ class HomeScreen extends GetView<HomeController> {
     return Scaffold(
       body: Obx(() => CustomScrollView(
         slivers: [
+
           SliverAppBar(
             elevation: 0,
             scrolledUnderElevation: 0,
@@ -48,15 +51,40 @@ class HomeScreen extends GetView<HomeController> {
             ),
           ),
 
-          /// 🔥 dynamic posts list
+
           SliverPadding(
-            padding: const EdgeInsets.only(bottom: 80),
-            sliver: controller.allPosts.isEmpty
-                ? const SliverFillRemaining(child: Center(child: CircularProgressIndicator()))
-                : SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                return PostCard(post: controller.allPosts[index]);
-              }, childCount: controller.allPosts.length),
+            padding: EdgeInsets.only(bottom: 80),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                  // 1. Suggestions kab dikhani hain?
+                  // Agar posts 10 se kam hain toh index 1 par, warna har 10th post par.
+                  bool isSuggestionPos = (controller.posts.length < 10)
+                      ? (index == 1)
+                      : (index != 0 && index % 11 == 0);
+
+                  if (isSuggestionPos && controller.suggestions.isNotEmpty) {
+                    return _buildSuggestions(controller);
+                  }
+
+                  // 2. Post ka index calculate karein
+                  // Kitne suggestion cards ab tak aa chuke hain?
+                  int offset = (controller.posts.length < 10)
+                      ? (index > 1 ? 1 : 0)
+                      : (index / 11).floor();
+
+                  final postIndex = index - offset;
+
+                  // 3. Safety Check
+                  if (postIndex >= 0 && postIndex < controller.posts.length) {
+                    return PostCard(post: controller.posts[postIndex]);
+                  }
+
+                  return null;
+                },
+                // Child count ko dynamic rakhein
+                childCount: controller.posts.length + (controller.suggestions.isNotEmpty ? (controller.posts.length < 10 ? 1 : (controller.posts.length / 10).floor()) : 0),
+              ),
             ),
           ),
         ],
@@ -84,13 +112,16 @@ class HomeScreen extends GetView<HomeController> {
               Positioned(
                 bottom: 0,
                 right: 0,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
+                child: GestureDetector(
+                  onTap: () => controller.pickAndUploadStory(), // 🔥 Click par upload
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    child: const Icon(Icons.add, color: Colors.white, size: 18),
                   ),
-                  child: const Icon(Icons.add, color: Colors.white, size: 18),
                 ),
               ),
             ],
@@ -105,20 +136,77 @@ class HomeScreen extends GetView<HomeController> {
   Widget _buildStoryCircle(StoryModel story) {
     return Padding(
       padding: const EdgeInsets.only(right: 12),
-      child: Column(
-        children: [
-          CircleAvatar(
-            radius: 38,
-            backgroundColor: Colors.indigo,
-            child: CircleAvatar(
-              radius: 35,
-              backgroundImage: NetworkImage(story.userImage),
+      child: InkWell(
+        onTap: () {
+          Get.to(() => StoryScreen(
+            stories: controller.allStories,
+            initialIndex: controller.allStories.indexOf(story),
+          ));
+        },
+        child: Column(
+          children: [
+            CircleAvatar(
+              radius: 38,
+              backgroundColor: Colors.indigo,
+              child: CircleAvatar(
+                radius: 35,
+                backgroundImage: NetworkImage(story.userImage),
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(story.username, style: const TextStyle(fontSize: 11)),
-        ],
+            const SizedBox(height: 4),
+            Text(story.username, style: const TextStyle(fontSize: 11)),
+          ],
+        ),
       ),
     );
   }
+
+  Widget _buildSuggestions(HomeController controller) {
+    return Obx(() {
+      if (controller.suggestions.isEmpty) {
+        // SliverList ke andar hum partial slivers return nahi kar sakte
+        return const SizedBox.shrink();
+      }
+
+      // 🔥 FIX: SliverToBoxAdapter ko hata kar normal Column use karein
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween, // Alignment fix
+              children: [
+                const Text(
+                  "Suggested for you",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: const Text("See More"),
+                )
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 150, // Height thodi badha di hai taaki cards cut na hon
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              itemCount: controller.suggestions.length,
+              itemBuilder: (context, index) {
+                final user = controller.suggestions[index];
+                return SuggestionCard(user: user);
+              },
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
 }
