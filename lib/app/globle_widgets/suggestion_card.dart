@@ -102,9 +102,10 @@ class SuggestionCard extends StatelessWidget {
 
   Color _getBtnColor(FollowState state) {
     switch (state) {
-      case FollowState.following: return Colors.grey.shade200;
-      case FollowState.requested: return Colors.grey.shade300; // Grey color for "Cancel" feel
-      case FollowState.followBack: return Colors.indigo;
+      case FollowState.following: return Colors.grey.shade300;
+      case FollowState.requested: return Colors.grey.shade400;
+      case FollowState.followBack: return Colors.blueAccent;
+      case FollowState.requestedMe: return Colors.green; // Highlight accept action
       default: return Colors.blue;
     }
   }
@@ -112,8 +113,9 @@ class SuggestionCard extends StatelessWidget {
   String _getBtnText(FollowState state) {
     switch (state) {
       case FollowState.following: return "Following";
-      case FollowState.requested: return "Cancel Request"; // Click will trigger cancel
+      case FollowState.requested: return "Cancel Request";
       case FollowState.followBack: return "Follow Back";
+      case FollowState.requestedMe: return "Accept"; // Action oriented
       default: return "Follow";
     }
   }
