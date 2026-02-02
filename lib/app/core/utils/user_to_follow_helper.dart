@@ -17,3 +17,28 @@ extension UserToFollowMapper on UserModel {
   }
 }
 
+
+extension FollowUserToUserMapper on FollowUserModel {
+  UserModel toUserModel() {
+    return UserModel(
+      uid: uid,
+      name: name,
+      username: username,
+      email: '',
+      phone: '',
+      photoUrl: photoUrl,
+      bio: '',
+      followerCount: 0,
+      followingCount: 0,
+      postsCount: 0,
+      isPrivate: isPrivate,
+      isBlocked: isBlocked,
+      role: 'user',
+      fcmToken: '',
+      lastSeen: Timestamp.now(),
+      isOnline: false,
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    );
+  }
+}

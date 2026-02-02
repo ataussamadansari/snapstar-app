@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../data/models/post_model.dart';
-import '../../follow_view/views/follow_screen.dart';
+import '../../follow_view/views/follow_list_screen.dart';
 import '../controllers/profile_controller.dart';
 
 class ProfileScreen extends GetView<ProfileController> {

@@ -127,4 +127,11 @@ class FollowProvider {
   }) async {
     await followRequestRef(myUid).doc(requesterUid).delete();
   }
+
+  Future<void> cancelFollowRequest({
+    required String myUid,
+    required String targetUid,
+  }) async {
+    await followRequestRef(targetUid).doc(myUid).delete();
+  }
 }

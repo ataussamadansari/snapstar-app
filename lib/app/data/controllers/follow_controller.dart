@@ -53,8 +53,42 @@ class FollowController extends GetxController {
   }
 
 
+
+  /// ───────── FOLLOW BUTTON TAP ─────────
   /// ───────── FOLLOW BUTTON TAP ─────────
   Future<void> onFollowTap(UserModel targetUser) async {
+    final uid = targetUser.uid;
+    if (uid == myUid) return;
+
+    loading[uid] = true;
+    final currentState = followStates[uid] ?? FollowState.follow;
+
+    try {
+      if (currentState == FollowState.follow || currentState == FollowState.followBack) {
+        // Follow Logic
+        await _repo.follow(me: await _getMe(), target: targetUser);
+        followStates[uid] = targetUser.isPrivate
+            ? FollowState.requested
+            : FollowState.following;
+
+      } else if (currentState == FollowState.following || currentState == FollowState.requested) {
+        // 🔥 CANCEL / UNFOLLOW Logic
+        // Dono cases mein repository ka unfollow kaam karega
+        await _repo.unfollow(uid);
+
+        // Update state: check if we should show 'Follow' or 'Follow Back'
+        final heFollowsMe = await _repo.isFollowing(uid, myUid);
+        followStates[uid] = heFollowsMe ? FollowState.followBack : FollowState.follow;
+      }
+    } catch (e) {
+      debugPrint("Toggle Error: $e");
+    } finally {
+      loading[uid] = false;
+    }
+  }
+
+  
+  /*Future<void> onFollowTap(UserModel targetUser) async {
     final uid = targetUser.uid;
     if (uid == myUid) return;
 
@@ -82,7 +116,7 @@ class FollowController extends GetxController {
     } finally {
       loading[uid] = false;
     }
-  }
+  }*/
 
   /// ───────── ACCEPT REQUEST ─────────
   Future<void> acceptRequest(UserModel requester) async { // Specify the type here
