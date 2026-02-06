@@ -1,11 +1,9 @@
 import 'package:get/get.dart';
-import 'package:snapstar/app/data/repositories/user_repository.dart';
 import 'package:snapstar/app/routes/app_routes.dart';
 
 import '../../../core/constants/firebase_constants.dart';
 import '../../../data/models/post_model.dart';
 import '../../../data/models/user_model.dart';
-import '../../../data/repositories/post_repository.dart';
 import '../../../data/repositories/profile_repository.dart';
 
 class ProfileController extends GetxController {

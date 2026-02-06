@@ -21,15 +21,13 @@ class _PostCardState extends State<PostCard> {
   int _currentIndex = 0;
 
   VideoPlayerController? _videoController;
-  bool _isMuted = true;
-  bool _isPlaying = true;
-
   late final PostInteractionController _interactionController;
 
   @override
   void initState() {
     super.initState();
 
+    /// one controller per post
     _interactionController = Get.put(
       PostInteractionController(),
       tag: widget.post.postId,
@@ -41,50 +39,18 @@ class _PostCardState extends State<PostCard> {
   }
 
   Future<void> _initVideo(int index) async {
-    try {
-      _videoController?.dispose();
+    _videoController?.dispose();
 
-      _videoController = VideoPlayerController.network(
-        widget.post.mediaUrls[index],
-      );
+    _videoController = VideoPlayerController.networkUrl(
+      Uri.parse(widget.post.mediaUrls[index]),
+    );
 
-      await _videoController!.initialize();
+    await _videoController!.initialize();
+    _videoController!
+      ..setLooping(true)
+      ..play();
 
-      _videoController!
-        ..setLooping(true)
-        ..setVolume(0) // 🔇 default mute
-        ..play();
-
-      _isMuted = true;
-      _isPlaying = true;
-
-      if (mounted) setState(() {});
-    } catch (e) {
-      debugPrint("Video init failed: $e");
-    }
-  }
-
-  void _toggleMute() {
-    if (_videoController == null) return;
-
-    setState(() {
-      _isMuted = !_isMuted;
-      _videoController!.setVolume(_isMuted ? 0 : 1);
-    });
-  }
-
-  void _togglePlayPause() {
-    if (_videoController == null) return;
-
-    setState(() {
-      if (_videoController!.value.isPlaying) {
-        _videoController!.pause();
-        _isPlaying = false;
-      } else {
-        _videoController!.play();
-        _isPlaying = true;
-      }
-    });
+    if (mounted) setState(() {});
   }
 
   @override
@@ -139,57 +105,19 @@ class _PostCardState extends State<PostCard> {
               return Stack(
                 fit: StackFit.expand,
                 children: [
-                  /// VIDEO / IMAGE
-                  GestureDetector(
-                    onTap: isVideoPost ? _togglePlayPause : null,
-                    child: isVideoPost &&
-                        _videoController != null &&
-                        _videoController!.value.isInitialized &&
-                        index == _currentIndex
-                        ? VideoPlayer(_videoController!)
-                        : Image.network(
+                  if (isVideoPost &&
+                      _videoController != null &&
+                      _videoController!.value.isInitialized &&
+                      index == _currentIndex)
+                    VideoPlayer(_videoController!)
+                  else
+                    Image.network(
                       isVideoPost
                           ? post.thumbnailUrls[index]
                           : post.mediaUrls[index],
                       fit: BoxFit.cover,
                     ),
-                  ),
 
-                  /// ▶️ PLAY / PAUSE ICON
-                  if (isVideoPost && !_isPlaying)
-                    Center(
-                      child: Icon(
-                        Icons.play_circle_fill,
-                        size: 70,
-                        color: Colors.white.withOpacity(0.85),
-                      ),
-                    ),
-
-                  /// 🔇 MUTE BUTTON
-                  if (isVideoPost)
-                    Positioned(
-                      bottom: 12,
-                      right: 12,
-                      child: GestureDetector(
-                        onTap: _toggleMute,
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: Colors.black54,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            _isMuted
-                                ? Icons.volume_off
-                                : Icons.volume_up,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                  /// MULTI IMAGE INDICATOR
                   if (post.mediaUrls.length > 1)
                     Positioned(
                       top: 8,
@@ -275,9 +203,8 @@ class _PostCardState extends State<PostCard> {
           padding: const EdgeInsets.symmetric(horizontal: 14),
           child: RichText(
             text: TextSpan(
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+              style:
+              TextStyle(color: Theme.of(context).colorScheme.onSurface),
               children: [
                 TextSpan(
                   text: "${user.username} ",
@@ -293,7 +220,7 @@ class _PostCardState extends State<PostCard> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
           child: Text(
-            "${post.createdAt.day}/${post.createdAt.month}/${post.createdAt.year}",
+            _formatDate(post.createdAt),
             style: TextStyle(
               fontSize: 11,
               color:
@@ -306,9 +233,12 @@ class _PostCardState extends State<PostCard> {
       ],
     );
   }
+
+  String _formatDate(DateTime date) =>
+      "${date.day}/${date.month}/${date.year}";
 }
 
-/// 🔁 REUSABLE ACTION ITEM
+/// 🔥 REUSABLE ACTION WIDGET (NO DUPLICATION)
 class _ActionItem extends StatelessWidget {
   final IconData icon;
   final int count;

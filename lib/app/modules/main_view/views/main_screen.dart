@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:snapstar/app/modules/home_view/views/home_screen.dart';
 import 'package:snapstar/app/modules/post_view/views/post_screen.dart';
 import 'package:snapstar/app/modules/profile_view/views/profile_screen.dart';
+import 'package:snapstar/app/modules/reels_view/views/reels_screen.dart';
 import 'package:snapstar/app/modules/search_view/views/search_screen.dart';
 import '../../../globle_widgets/custom_bottom_nav.dart';
 import '../controllers/main_controller.dart';
@@ -16,7 +17,7 @@ class MainScreen extends GetView<MainController> {
       HomeScreen(),
       SearchScreen(),
       PostScreen(),
-      Center(child: Text("Reels")),
+      ReelsScreen(),
       ProfileScreen(),
     ];
 
@@ -43,40 +44,3 @@ class MainScreen extends GetView<MainController> {
     );
   }
 }
-
-
-/*
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:snapstar/app/modules/home_view/views/home_screen.dart';
-import 'package:snapstar/app/modules/search_view/views/search_screen.dart';
-import '../../../globle_widgets/custom_bottom_nav.dart';
-import '../controllers/main_controller.dart';
-
-class MainScreen extends GetView<MainController> {
-  const MainScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final pages = const [
-      HomeScreen(),
-      SearchScreen(),
-      Center(child: Text("Add Post")),
-      Center(child: Text("Reels")),
-      Center(child: Text("Profile")),
-    ];
-
-    return Scaffold(
-      body: Obx(
-            () => IndexedStack(
-          index: controller.selectedIndex.value,
-          children: pages,
-        ),
-      ),
-
-      // 👇 CUSTOM BOTTOM NAV
-      bottomNavigationBar: CustomBottomNav(controller: controller),
-    );
-  }
-}
-*/

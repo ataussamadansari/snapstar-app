@@ -41,7 +41,7 @@ class PostController extends GetxController {
         currentUser.value = user;
       }
     } catch (e) {
-      print("Error fetching user: $e");
+      Get.snackbar("Error", e.toString());
     }
   }
 

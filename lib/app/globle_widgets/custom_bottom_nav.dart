@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:snapstar/app/core/themes/app_colors.dart';
 
 import '../modules/main_view/controllers/main_controller.dart';
 
@@ -73,7 +72,7 @@ class CustomBottomNav extends StatelessWidget {
             ),
             child: CircleAvatar(
               radius: 14,
-              backgroundColor: scheme.surfaceVariant,
+              backgroundColor: scheme.surfaceContainerHighest,
               backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
               child: photoUrl == null
                   ? Icon(Icons.person, size: 26, color: inactiveColor)

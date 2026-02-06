@@ -21,7 +21,7 @@ class HomeRepository {
   Stream<List<PostModel>> getGlobalFeed() {
     return _postProvider.getGlobalPosts().map(
           (list) => list
-          .map((e) => PostModel.fromMap(e as Map<String, dynamic>))
+          .map((e) => PostModel.fromMap(e))
           .where((p) => p.userId != myUid)
           .toList(),
     );
@@ -55,7 +55,7 @@ class HomeRepository {
   Stream<List<PostModel>> getReelsFeed() {
     return _postProvider.getGlobalPosts().map(
           (list) => list
-          .map((e) => PostModel.fromMap(e as Map<String, dynamic>))
+          .map((e) => PostModel.fromMap(e))
           .where((p) =>
       p.mediaType == MediaType.video &&
           p.userId != myUid)

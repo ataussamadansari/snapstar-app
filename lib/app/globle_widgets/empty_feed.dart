@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class EmptyFeed extends StatelessWidget {
+  const EmptyFeed({super.key});
+
   @override
   Widget build(BuildContext context) {
     return const SliverFillRemaining(

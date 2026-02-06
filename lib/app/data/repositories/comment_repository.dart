@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/comment_model.dart';
-import '../models/user_snapshot.dart';
 import '../providers/comment_provider.dart';
 import 'user_repository.dart';
 

@@ -55,7 +55,6 @@ class FollowController extends GetxController {
 
 
   /// ───────── FOLLOW BUTTON TAP ─────────
-  /// ───────── FOLLOW BUTTON TAP ─────────
   Future<void> onFollowTap(UserModel targetUser) async {
     final uid = targetUser.uid;
     if (uid == myUid) return;
@@ -86,37 +85,6 @@ class FollowController extends GetxController {
       loading[uid] = false;
     }
   }
-
-  
-  /*Future<void> onFollowTap(UserModel targetUser) async {
-    final uid = targetUser.uid;
-    if (uid == myUid) return;
-
-    loading[uid] = true;
-
-    final currentState = followStates[uid] ?? FollowState.follow;
-
-    try {
-      if (currentState == FollowState.follow) {
-        await _repo.follow(me: await _getMe(), target: targetUser);
-
-        followStates[uid] = targetUser.isPrivate
-            ? FollowState.requested
-            : FollowState.following;
-      } else if (currentState == FollowState.following) {
-        await _repo.unfollow(uid);
-        followStates[uid] = FollowState.follow;
-      } else if (currentState == FollowState.followBack) {
-        await _repo.follow(me: await _getMe(), target: targetUser);
-
-        followStates[uid] = FollowState.following;
-      }
-    } catch (e) {
-      debugPrint("$e");
-    } finally {
-      loading[uid] = false;
-    }
-  }*/
 
   /// ───────── ACCEPT REQUEST ─────────
   Future<void> acceptRequest(UserModel requester) async { // Specify the type here

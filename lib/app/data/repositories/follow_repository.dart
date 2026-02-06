@@ -55,12 +55,6 @@ class FollowRepository {
     // 2. Saath hi follow request bhi delete kar dein agar pending ho (Cancel Request)
     await _provider.cancelFollowRequest(myUid: myUid, targetUid: targetUid);
   }
-  /*Future<void> unfollow(String targetUid) {
-    return _provider.unfollow(
-      myUid: myUid,
-      targetUid: targetUid,
-    );
-  }*/
 
   /// ✅ Accept request
   Future<void> acceptFollowRequest({
@@ -105,24 +99,4 @@ class FollowRepository {
     // 5. Default: Koi rishta nahi hai abhi
     return FollowState.follow;
   }
-
-/*
-  Future<FollowState> getFollowState({
-    required String myUid,
-    required String targetUid,
-  }) async {
-    // 1. already following?
-    final isFollowing = await _provider.isFollowing(myUid, targetUid);
-    if (isFollowing) return FollowState.following;
-
-    // 2. request pending?
-    final hasRequest = await _provider.hasRequestExist(myUid, targetUid);
-    if (hasRequest) return FollowState.requested;
-
-
-    // 3. default
-    return FollowState.follow;
-  }
-*/
-
 }

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../core/constants/firebase_constants.dart';
 import '../../data/models/post_model.dart';
 import '../../data/repositories/like_repository.dart';
 
@@ -63,43 +62,3 @@ class PostInteractionController extends GetxController {
   }
 }
 
-
-/*
-import 'package:get/get.dart';
-import '../../data/models/post_model.dart';
-import '../../data/repositories/like_repository.dart';
-
-class PostInteractionController extends GetxController {
-  final LikeRepository _likeRepo = LikeRepository();
-
-  final RxBool isLiked = false.obs;
-  final RxInt likeCount = 0.obs;
-
-  late String postId;
-
-  /// Init per post
-  Future<void> init(PostModel post) async {
-    postId = post.postId;
-    likeCount.value = post.likeCount;
-
-    isLiked.value = await _likeRepo.isLiked(postId);
-  }
-
-  /// ❤️ / 💔 Toggle
-  Future<void> toggleLike() async {
-    final previous = isLiked.value;
-
-    // 🔥 Optimistic UI
-    isLiked.value = !previous;
-    likeCount.value += previous ? -1 : 1;
-
-    try {
-      await _likeRepo.toggleLike(postId, previous);
-    } catch (e) {
-      // rollback
-      isLiked.value = previous;
-      likeCount.value += previous ? 1 : -1;
-    }
-  }
-}
-*/
