@@ -1,10 +1,98 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import '../core/utils/video_cache_manager.dart';
 
 class AutoPlayVideo extends StatefulWidget {
+  final String videoUrl;
+  final String videoId;
+  final bool isMuted;
+
+  const AutoPlayVideo({
+    super.key,
+    required this.videoUrl,
+    required this.videoId,
+    required this.isMuted,
+  });
+
+  @override
+  State<AutoPlayVideo> createState() => _AutoPlayVideoState();
+}
+
+class _AutoPlayVideoState extends State<AutoPlayVideo>
+    with AutomaticKeepAliveClientMixin {
+
+  VideoPlayerController? _controller;
+  bool _isInitialized = false;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    final fileInfo =
+    await VideoCacheManager.instance.getFileFromCache(widget.videoUrl);
+
+    if (fileInfo != null) {
+      _controller = VideoPlayerController.file(fileInfo.file);
+    } else {
+      _controller =
+          VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
+      VideoCacheManager.instance.downloadFile(widget.videoUrl);
+    }
+
+    await _controller!.initialize();
+    _controller!.setVolume(widget.isMuted ? 0 : 1);
+
+    setState(() => _isInitialized = true);
+  }
+
+  @override
+  void didUpdateWidget(covariant AutoPlayVideo oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _controller?.setVolume(widget.isMuted ? 0 : 1);
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+
+    return VisibilityDetector(
+      key: Key(widget.videoId),
+      onVisibilityChanged: (info) {
+        if (!_isInitialized) return;
+
+        if (info.visibleFraction > 0.8) {
+          _controller?.play();
+        } else if (info.visibleFraction < 0.2) {
+          _controller?.pause();
+        }
+      },
+      child: _isInitialized
+          ? Center(
+            child: AspectRatio(
+                    aspectRatio: _controller!.value.aspectRatio,
+                    child: VideoPlayer(_controller!),
+                  ),
+          )
+          : const Center(child: CircularProgressIndicator()),
+    );
+  }
+}
+
+
+/*class AutoPlayVideo extends StatefulWidget {
   final String videoUrl;
   const AutoPlayVideo({super.key, required this.videoUrl});
 
@@ -109,7 +197,7 @@ class _AutoPlayVideoState extends State<AutoPlayVideo> with AutomaticKeepAliveCl
               ),
               // Mute Icon
               Positioned(
-                bottom: 15, right: 15,
+                top: 15, right: 15,
                 child: CircleAvatar(
                   backgroundColor: Colors.black45,
                   radius: 15,
@@ -138,7 +226,7 @@ class _AutoPlayVideoState extends State<AutoPlayVideo> with AutomaticKeepAliveCl
       ),
     );
   }
-}
+}*/
 
 /*
 import 'package:flutter/material.dart';

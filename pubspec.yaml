@@ -45,6 +45,7 @@ dependencies:
   visibility_detector: ^0.4.0+2
   flutter_cache_manager: ^3.4.1
   cached_network_image: ^3.4.1
+  hugeicons: ^1.1.5
 
 dev_dependencies:
   flutter_test:

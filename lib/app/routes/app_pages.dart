@@ -12,6 +12,8 @@ import 'package:snapstar_app/app/modules/signup_view/bindings/signup_binding.dar
 import 'package:snapstar_app/app/modules/signup_view/views/signup_screen.dart';
 import 'package:snapstar_app/app/modules/splash_view/bindings/splash_binding.dart';
 import 'package:snapstar_app/app/modules/splash_view/views/splash_screen.dart';
+import 'package:snapstar_app/app/modules/story_preview_view/bindings/story_preview_binding.dart';
+import 'package:snapstar_app/app/modules/story_preview_view/views/story_preview_screen.dart';
 import 'package:snapstar_app/app/modules/subscribe_list_view/bindings/subscribe_list_binding.dart';
 import 'package:snapstar_app/app/modules/subscribe_list_view/views/subscribe_list_screen.dart';
 
@@ -56,6 +58,12 @@ class AppPages {
       name: Routes.subscriberList,
       page: () => SubscriberListScreen(),
       binding: SubscriberListBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: Routes.storyPreview,
+      page: () => StoryPreviewScreen(),
+      binding: StoryPreviewBinding(),
       middlewares: [AuthMiddleware()],
     ),
 

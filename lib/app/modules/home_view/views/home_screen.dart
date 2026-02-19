@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../global_widgets/post_card.dart';
+import '../../../global_widgets/story_card.dart';
 import '../../../global_widgets/user_suggestion_card.dart';
 import '../controllers/home_controller.dart';
 
@@ -11,13 +12,78 @@ class HomeScreen extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      /*appBar: AppBar(
         elevation: 0,
         scrolledUnderElevation: 0,
         title: const Text("SnapStar", style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: false,
-      ),
-      body: RefreshIndicator(
+      ),*/
+      body: Obx(() {
+        return SafeArea(
+          child: CustomScrollView(
+            slivers: [
+          
+              SliverAppBar(
+                floating: true,
+                snap: true,
+                elevation: 0,
+                scrolledUnderElevation: 0,
+                title: const Text("SnapStar"),
+              ),
+          
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 110,
+                  child: Obx(() {
+                    final stories =
+                        controller.storyController.groupedStories;
+          
+                    return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      itemCount: stories.length + 1,
+                      itemBuilder: (context, index) {
+          
+                        if (index == 0) {
+                          return const StoryCard(
+                            name: "You",
+                            isYourStory: true,
+                          );
+                        }
+          
+                        final storyUser = stories[index - 1];
+          
+                        return StoryCard(
+                          name: storyUser.userName,
+                          imageUrl: storyUser.avatarUrl,
+                          hasUnseen: storyUser.hasUnseen,
+                          onTap: () {
+                            Get.toNamed(
+                              '/story-viewer',
+                              arguments: storyUser,
+                            );
+                          },
+                        );
+                      },
+                    );
+                  }),
+                ),
+              ),
+          
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                    return PostCard(post: controller.posts[index]);
+                  },
+                  childCount: controller.posts.length,
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
+
+      /*body: RefreshIndicator(
         onRefresh: () => controller.refreshAll(),
         child: Obx(() {
           if (controller.isLoadingPosts.value && controller.posts.isEmpty) {
@@ -65,7 +131,7 @@ class HomeScreen extends GetView<HomeController> {
             },
           );
         }),
-      ),
+      ),*/
     );
   }
 
