@@ -1,3 +1,5 @@
+import 'user_model.dart';
+
 enum StoryMediaType { image, video }
 
 class StoryModel {
@@ -7,6 +9,8 @@ class StoryModel {
   final List<StoryMediaType> mediaTypes;
   final DateTime expiresAt;
   final DateTime createdAt;
+  final UserModel? user;
+  bool isViewed;
 
   StoryModel({
     required this.id,
@@ -15,6 +19,8 @@ class StoryModel {
     required this.mediaTypes,
     required this.expiresAt,
     required this.createdAt,
+    this.user,
+    this.isViewed = false,
   });
 
   factory StoryModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +34,9 @@ class StoryModel {
           .toList(),
       expiresAt: DateTime.parse(json['expires_at']),
       createdAt: DateTime.parse(json['created_at']),
+      user: json['users'] != null
+          ? UserModel.fromJson(json['users'])
+          : null,
     );
   }
 
@@ -42,3 +51,4 @@ class StoryModel {
 
   bool get isExpired => DateTime.now().isAfter(expiresAt);
 }
+

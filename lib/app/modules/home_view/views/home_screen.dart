@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:snapstar_app/app/routes/app_routes.dart';
 
+import '../../../core/utils/auth_helper.dart';
 import '../../../global_widgets/post_card.dart';
 import '../../../global_widgets/story_card.dart';
 import '../../../global_widgets/user_suggestion_card.dart';
@@ -12,17 +14,10 @@ class HomeScreen extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      /*appBar: AppBar(
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        title: const Text("SnapStar", style: TextStyle(fontWeight: FontWeight.bold)),
-        centerTitle: false,
-      ),*/
       body: Obx(() {
         return SafeArea(
           child: CustomScrollView(
             slivers: [
-          
               SliverAppBar(
                 floating: true,
                 snap: true,
@@ -30,52 +25,37 @@ class HomeScreen extends GetView<HomeController> {
                 scrolledUnderElevation: 0,
                 title: const Text("SnapStar"),
               ),
-          
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 110,
-                  child: Obx(() {
-                    final stories =
-                        controller.storyController.groupedStories;
-          
-                    return ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      itemCount: stories.length + 1,
-                      itemBuilder: (context, index) {
-          
-                        if (index == 0) {
-                          return const StoryCard(
-                            name: "You",
-                            isYourStory: true,
-                          );
-                        }
-          
-                        final storyUser = stories[index - 1];
-          
-                        return StoryCard(
-                          name: storyUser.userName,
-                          imageUrl: storyUser.avatarUrl,
-                          hasUnseen: storyUser.hasUnseen,
-                          onTap: () {
-                            Get.toNamed(
-                              '/story-viewer',
-                              arguments: storyUser,
-                            );
-                          },
-                        );
-                      },
-                    );
-                  }),
-                ),
-              ),
-          
+
+              /// 🔵 STORIES
+              SliverToBoxAdapter(child: _buildStories()),
+
+              /// 🔵 POSTS + SUGGESTIONS MIXED
               SliverList(
                 delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                    return PostCard(post: controller.posts[index]);
+                  (context, index) {
+                    final postCount = controller.posts.length;
+                    final showSuggestions = controller.users.isNotEmpty;
+
+                    int suggestionIndex = postCount < 5 ? 2 : 5;
+
+                    if (showSuggestions && index == suggestionIndex) {
+                      return _buildSuggestedSection();
+                    }
+
+                    int actualPostIndex =
+                        (showSuggestions && index > suggestionIndex)
+                        ? index - 1
+                        : index;
+
+                    if (actualPostIndex < postCount) {
+                      return PostCard(post: controller.posts[actualPostIndex]);
+                    }
+
+                    return const SizedBox();
                   },
-                  childCount: controller.posts.length,
+                  childCount:
+                      controller.posts.length +
+                      (controller.users.isNotEmpty ? 1 : 0),
                 ),
               ),
             ],
@@ -135,15 +115,100 @@ class HomeScreen extends GetView<HomeController> {
     );
   }
 
-  // Horizontal Suggested Users Widget
+  Widget _buildStories() {
+    return SizedBox(
+      height: 110,
+      child: Obx(() {
+        final storyController = controller.storyController;
+
+        final currentUserId = AuthHelper.currentUserId;
+
+        final myStory = storyController.getMyLatestStory(currentUserId);
+
+        final otherStories = storyController.getOtherUsersStories(
+          currentUserId,
+        );
+
+        return ListView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          children: [
+            /// 🔵 YOUR STORY
+            StoryCard(
+              name: "Your Story",
+              imageUrl: myStory?.mediaUrls.first,
+              isYourStory: true,
+              hasUnseen: false,
+              onTap: () {
+                if (myStory != null) {
+                  Get.toNamed(Routes.storyViewer, arguments: myStory);
+                }
+              },
+            ),
+
+            /// 🔵 OTHER USERS
+            ...otherStories.map((story) {
+              return StoryCard(
+                name: story.user!.username,
+                imageUrl: story.user!.avatarUrl,
+                hasUnseen: story.isViewed,
+                onTap: () {
+                  Get.toNamed(Routes.storyViewer, arguments: story);
+                },
+              );
+            }),
+          ],
+        );
+      }),
+    );
+  }
+
   Widget _buildSuggestedSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Text("Suggested for you",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          child: Text(
+            "Suggested for you",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          ),
+        ),
+
+        SizedBox(
+          height: 200,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            itemCount: controller.users.length,
+            itemBuilder: (context, index) {
+              return UserSuggestionCard(
+                user: controller.users[index],
+                onProfileTap: () => Get.toNamed(
+                  '/profile',
+                  arguments: controller.users[index].id,
+                ),
+              );
+            },
+          ),
+        ),
+
+        const SizedBox(height: 10),
+      ],
+    );
+  }
+
+  // Horizontal Suggested Users Widget
+  Widget _buildSuggestedSectionV0() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Text(
+            "Suggested for you",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          ),
         ),
         SizedBox(
           height: 200,
@@ -154,7 +219,10 @@ class HomeScreen extends GetView<HomeController> {
             itemBuilder: (context, index) {
               return UserSuggestionCard(
                 user: controller.users[index],
-                onProfileTap: () => Get.toNamed('/profile', arguments: controller.users[index].id),
+                onProfileTap: () => Get.toNamed(
+                  '/profile',
+                  arguments: controller.users[index].id,
+                ),
               );
             },
           ),
@@ -163,4 +231,3 @@ class HomeScreen extends GetView<HomeController> {
     );
   }
 }
-

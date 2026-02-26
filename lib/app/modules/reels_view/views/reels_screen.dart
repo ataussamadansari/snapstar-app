@@ -8,6 +8,10 @@ class ReelsScreen extends GetView<ReelsController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      body: Center(
+        child: Text("Coming Soon!"),
+      ),
+    );
   }
 }

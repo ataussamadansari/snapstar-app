@@ -3,8 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:snapstar_app/app/core/utils/auth_helper.dart';
 
 import '../data/controllers/story_controller.dart';
+import '../data/models/story_model.dart';
+import '../data/repositories/user_repository.dart';
 import '../modules/home_view/controllers/home_controller.dart';
 
 class StoryCard extends StatelessWidget {
@@ -31,11 +34,22 @@ class StoryCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (isYourStory) {
-          _showStoryOptions(context);
+          if (imageUrl == null) {
+            _showStoryOptions(context); // No story → open add
+          } else {
+            onTap?.call(); // Story exist → open viewer
+          }
         } else {
           onTap?.call();
         }
       },
+      /*onTap: () {
+        if (isYourStory && imageUrl == null) {
+          _showStoryOptions(context);
+        } else {
+          onTap?.call();
+        }
+      },*/
       child: SizedBox(
         width: 85,
         child: Column(
@@ -59,13 +73,7 @@ class StoryCard extends StatelessWidget {
                         : Colors.grey.shade200,
                     backgroundImage: imageUrl != null
                         ? NetworkImage(imageUrl!)
-                        : null,
-                    child: imageUrl == null
-                        ? Icon(
-                            Icons.person,
-                            color: isDark ? Colors.white70 : Colors.black54,
-                          )
-                        : null,
+                        : AssetImage("assets/images/default_user.png"),
                   ),
                 ),
 
@@ -74,20 +82,25 @@ class StoryCard extends StatelessWidget {
                   Positioned(
                     bottom: 0,
                     right: 0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: isDark ? Colors.white : Colors.black,
-                        border: Border.all(
-                          color: isDark ? Colors.black : Colors.white,
-                          width: 2,
+                    child: GestureDetector(
+                      onTap: () {
+                        _showStoryOptions(context);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isDark ? Colors.white : Colors.black,
+                          border: Border.all(
+                            color: isDark ? Colors.black : Colors.white,
+                            width: 2,
+                          ),
                         ),
-                      ),
-                      padding: const EdgeInsets.all(4),
-                      child: Icon(
-                        Icons.add,
-                        size: 16,
-                        color: isDark ? Colors.black : Colors.white,
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(
+                          Icons.add,
+                          size: 16,
+                          color: isDark ? Colors.black : Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -196,21 +209,18 @@ class StoryCard extends StatelessWidget {
   }
 
   void _handleStoryFile(
-      BuildContext context,
-      XFile file, {
-        required bool isVideo,
-      }) async {
-
+    BuildContext context,
+    XFile file, {
+    required bool isVideo,
+  }) async {
     final storyController = Get.find<StoryController>();
-    final homeController = Get.find<HomeController>();
 
-    await storyController.postStory(
+    await storyController.uploadStory(
+      userId: AuthHelper.currentUserId,
       file: File(file.path),
-      isVideo: isVideo,
-      users: homeController.users,
+      mediaType: isVideo ? StoryMediaType.video : StoryMediaType.image,
     );
   }
-
 
   Widget _optionTile(
     BuildContext context, {

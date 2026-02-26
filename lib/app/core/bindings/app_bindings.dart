@@ -14,6 +14,7 @@ import 'package:snapstar_app/app/data/repositories/like_repository.dart';
 import 'package:snapstar_app/app/data/repositories/story_repository.dart';
 import 'package:snapstar_app/app/data/repositories/subscriber_repository.dart';
 import 'package:snapstar_app/app/data/repositories/user_repository.dart';
+import 'package:snapstar_app/app/data/services/story_service.dart';
 
 import '../../data/controllers/global_interaction_controller.dart';
 import '../../data/controllers/global_video_controller.dart';
@@ -30,14 +31,16 @@ class AppBindings extends Bindings {
     Get.put<PostProvider>(PostProvider(), permanent: true);
     Get.put<LikeProvider>(LikeProvider(), permanent: true);
     Get.put<CommentProvider>(CommentProvider(), permanent: true);
-    Get.put<StoryProvider>(StoryProvider(), permanent: true);
+    // Get.put<StoryProvider>(StoryProvider(), permanent: true);
 
     Get.put<SubscriberRepository>(SubscriberRepository(Get.find<SubscriberProvider>()), permanent: true,);
     Get.put<UserRepository>(UserRepository(Get.find<UserProvider>()), permanent: true,);
     Get.put<PostRepository>(PostRepository(Get.find<PostProvider>()), permanent: true,);
     Get.put<LikeRepository>(LikeRepository(Get.find<LikeProvider>()), permanent: true,);
     Get.put<CommentRepository>(CommentRepository(Get.find<CommentProvider>()), permanent: true,);
-    Get.put<StoryRepository>(StoryRepository(Get.find<StoryProvider>()), permanent: true,);
+    // Get.put<StoryRepository>(StoryRepository(Get.find<StoryProvider>()), permanent: true,);
+    Get.put(StoryRepository());
+    Get.put(StoryService(Get.find()));
 
     Get.put(SplashController(), permanent: true);
     Get.put(LikeController(), permanent: true);

@@ -94,6 +94,18 @@ class StoryRepository {
     return response != null;
   }
 
+  // ===============================
+  // 🔹 GET STORY VIEWERS
+  // ===============================
+  Future<List<StoryViewModel>> getStoryViewers(String storyId) async {
+    final response = await _client
+        .from('story_views')
+        .select()
+        .eq('story_id', storyId)
+        .order('created_at', ascending: false);
+
+    return (response as List).map((e) => StoryViewModel.fromJson(e)).toList();
+  }
 
   // ===============================
   // 🔹 GET VIEW COUNT
@@ -116,7 +128,48 @@ class StoryRepository {
         .delete()
         .lt('expires_at', DateTime.now().toIso8601String());
   }
-
-
 }
 
+
+/*
+import 'dart:io';
+
+import '../models/story_model.dart';
+import '../models/story_view_model.dart';
+import '../providers/story_provider.dart';
+
+class StoryRepository {
+  final StoryProvider _provider;
+
+  StoryRepository(this._provider);
+
+  Future<void> uploadStory({
+    required File file,
+    required String userId,
+    required bool isVideo,
+  }) async {
+
+    final url = await _provider.uploadStoryFile(file, userId);
+
+    await _provider.insertStory(
+      userId: userId,
+      mediaUrl: url,
+      mediaType: isVideo ? "video" : "image",
+    );
+  }
+
+  Future<List<StoryModel>> getActiveStories() {
+    return _provider.fetchActiveStories();
+  }
+
+  Future<List<StoryViewModel>> getViews(
+      List<String> storyIds) {
+    return _provider.fetchStoryViews(storyIds);
+  }
+
+  Future<void> markViewed(
+      String storyId, String viewerId) {
+    return _provider.markStoryViewed(storyId, viewerId);
+  }
+}
+*/

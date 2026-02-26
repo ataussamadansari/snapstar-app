@@ -8,5 +8,5 @@ abstract class Routes
     static const main = '/main';
     static const editProfile = '/edit-profile';
     static const subscriberList = '/subscribe-list';
-    static const storyPreview = '/story-preview';
+    static const storyViewer = '/story-viewer';
 }

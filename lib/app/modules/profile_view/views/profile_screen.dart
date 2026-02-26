@@ -24,11 +24,7 @@ class ProfileScreen extends GetView<ProfileController> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_box_outlined),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.menu),
+            icon: const Icon(Icons.logout),
             onPressed: () async {
               await Supabase.instance.client.auth.signOut();
               Get.offAllNamed(Routes.login);

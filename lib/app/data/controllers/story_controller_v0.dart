@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:get/get.dart';
+import '../../core/utils/auth_helper.dart';
 import '../models/story_model.dart';
 import '../services/story_service.dart';
 
@@ -12,9 +13,6 @@ class StoryController extends GetxController {
   RxBool isLoading = false.obs;
   RxBool isUploading = false.obs;
 
-  // Already viewed in current session
-  final Set<String> _locallyViewed = {};
-
   // ===============================
   // 🔹 INIT
   // ===============================
@@ -22,6 +20,10 @@ class StoryController extends GetxController {
   void onInit() {
     fetchStories();
     super.onInit();
+  }
+
+  bool? getIsViewed() {
+
   }
 
   StoryModel? getMyLatestStory(String currentUserId) {
@@ -36,11 +38,12 @@ class StoryController extends GetxController {
   }
 
   List<StoryModel> getOtherUsersStories(String currentUserId) {
-    // 1. Apne alawa baaki sabki stories nikalein
-    final otherStories = stories.where((s) => s.userId != currentUserId).toList();
 
-    // 2. Stories ko userId ke basis par group karein
+    final otherStories =
+    stories.where((s) => s.userId != currentUserId).toList();
+
     final Map<String, List<StoryModel>> grouped = {};
+
     for (var story in otherStories) {
       grouped.putIfAbsent(story.userId, () => []);
       grouped[story.userId]!.add(story);
@@ -49,17 +52,18 @@ class StoryController extends GetxController {
     final result = <StoryModel>[];
 
     grouped.forEach((userId, userStories) {
-      // Latest story pehle dikhane ke liye sort karein
-      userStories.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      // latest story
+      userStories.sort(
+            (a, b) => b.createdAt.compareTo(a.createdAt),
+      );
 
       final latestStory = userStories.first;
 
-      // 🔥 MAIN LOGIC: Check karein agar KOI BHI story unseen hai
-      // Agar ek bhi story false hai, toh hasUnseen true hoga
-      final hasUnseen = userStories.any((s) => s.isViewed == true);
+      // 🔥 check if ANY story unseen
+      final hasUnseen =
+      userStories.any((s) => !s.isViewed);
 
-      // Latest story model mein temporary flag set karein UI ke liye
-      // Agar hasUnseen true hai, toh isViewed false hona chahiye (gradient dikhane ke liye)
       latestStory.isViewed = !hasUnseen;
 
       result.add(latestStory);
@@ -94,6 +98,16 @@ class StoryController extends GetxController {
       isLoading.value = true;
 
       final data = await _service.getActiveStories();
+      final currentUserId = AuthHelper.currentUserId;
+
+      for (var story in data) {
+        final viewed = await _service.isStoryViewed(
+          storyId: story.id,
+          viewerId: currentUserId,
+        );
+
+        story.isViewed = viewed;
+      }
 
       stories.assignAll(data);
 
@@ -195,47 +209,21 @@ class StoryController extends GetxController {
     required String storyId,
     required String viewerId,
   }) async {
-
-    // 🔥 1. Already locally viewed? Skip everything
-    if (_locallyViewed.contains(storyId)) {
-      return;
-    }
-
-    final story = stories.firstWhereOrNull((s) => s.id == storyId);
-    if (story == null) return;
-
-    // 🔥 2. Apni story ho to skip
-    if (story.userId == viewerId) {
-      return;
-    }
-
-    // 🔥 3. Agar DB me pehle se viewed hai
-    if (story.isViewed) {
-      _locallyViewed.add(storyId);
-      return;
-    }
-
-    // 🔥 4. First time view → insert
     await _service.markStoryViewed(
       storyId: storyId,
       viewerId: viewerId,
     );
-
-    story.isViewed = true;
-
-    _locallyViewed.add(storyId);
-
-    stories.refresh();
   }
 
-  Future<void> markViewedV0({
+  Future<void> isViewed({
     required String storyId,
     required String viewerId,
   }) async {
-    await _service.markStoryViewed(
+    bool res = await _service.markStoryViewed(
       storyId: storyId,
       viewerId: viewerId,
     );
+    print("result isViewed: $res");
   }
 
   // ===============================
@@ -253,3 +241,101 @@ class StoryController extends GetxController {
   }
 }
 
+/*
+import 'dart:io';
+
+import 'package:get/get.dart';
+import 'package:snapstar_app/app/core/utils/auth_helper.dart';
+import '../models/story_model.dart';
+import '../models/story_user_model.dart';
+import '../models/story_view_model.dart';
+import '../repositories/story_repository.dart';
+import '../models/user_model.dart';
+
+class StoryController extends GetxController {
+
+  final StoryRepository repo = Get.find();
+
+  RxList<StoryModel> stories = <StoryModel>[].obs;
+  RxList<StoryUserModel> groupedStories = <StoryUserModel>[].obs;
+
+  RxBool isLoading = false.obs;
+
+
+  Future<void> postStory({
+    required File file,
+    required bool isVideo,
+    required List<UserModel> users,
+  }) async {
+
+    if (AuthHelper.currentUserId.isEmpty) return;
+
+    isLoading.value = true;
+
+    await repo.uploadStory(
+      file: file,
+      userId: AuthHelper.currentUserId,
+      isVideo: isVideo,
+    );
+
+    // Refresh stories after upload
+    await loadStories(users, AuthHelper.currentUserId);
+
+    isLoading.value = false;
+  }
+
+
+  Future<void> loadStories(List<UserModel> users, String currentUserId) async {
+    isLoading.value = true;
+
+    final fetchedStories = await repo.getActiveStories();
+    stories.assignAll(fetchedStories);
+
+    final storyIds = fetchedStories.map((e) => e.id).toList();
+    final views = await repo.getViews(storyIds);
+
+    _groupStories(users, views, currentUserId);
+
+    isLoading.value = false;
+  }
+
+  void _groupStories(
+      List<UserModel> users,
+      List<StoryViewModel> views,
+      String currentUserId,
+      ) {
+
+    final Map<String, List<StoryModel>> map = {};
+
+    for (var story in stories) {
+      map.putIfAbsent(story.userId, () => []);
+      map[story.userId]!.add(story);
+    }
+
+    final result = map.entries.map((entry) {
+
+      final user = users.firstWhere(
+            (u) => u.id == entry.key,
+        orElse: () => users.first,
+      );
+
+      final userStories = entry.value;
+
+      final hasUnseen = userStories.any((story) =>
+      !views.any((view) =>
+      view.storyId == story.id &&
+          view.viewerId == currentUserId));
+
+      return StoryUserModel(
+        userId: entry.key,
+        userName: user.name,
+        avatarUrl: user.avatarUrl,
+        stories: userStories,
+        hasUnseen: hasUnseen,
+      );
+    }).toList();
+
+    groupedStories.assignAll(result);
+  }
+}
+*/

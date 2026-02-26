@@ -55,12 +55,14 @@ class LoginController extends GetxController {
       /// 4️⃣ PROFILE COMPLETE
       Get.offAllNamed(Routes.main);
 
-    } on AuthApiException catch (e) {
+    } on PostgrestException catch (e) {
+      debugPrint("Login Failed: $e");
       AppHelpers.showSnackBar(
         title: "Login Failed",
         message: e.message,
       );
     } catch (e) {
+      debugPrint("Login Failed: $e");
       AppHelpers.showSnackBar(
         title: "Error",
         message: e.toString(),
