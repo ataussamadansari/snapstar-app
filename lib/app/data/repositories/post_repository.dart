@@ -2,11 +2,13 @@ import 'dart:io';
 
 import '../models/post_model.dart';
 import '../providers/post_provider.dart';
+import '../services/post_service.dart';
 
 class PostRepository {
   final PostProvider provider;
+  final PostService service;
 
-  PostRepository(this.provider);
+  PostRepository(this.provider, this.service);
 
   Future<void> createPost(PostModel post) async {
     await provider.createPost(post.toCreateJson());
@@ -29,7 +31,6 @@ class PostRepository {
     return raw.map((e) => PostModel.fromJson(e)).toList();
   }
 
-
   Future<List<PostModel>> fetchReels() async {
     final raw = await provider.fetchVideoPosts();
     return raw.map((e) => PostModel.fromJson(e)).toList();
@@ -44,6 +45,25 @@ class PostRepository {
       file: file,
       userId: userId,
       type: type,
+    );
+  }
+
+  /// 🔥 Realtime Wrapper
+  void subscribeToFeed({
+    required Function(PostModel) onInsert,
+    required Function(PostModel) onUpdate,
+    required Function(String id) onDelete,
+  }) {
+    service.subscribeToPosts(
+      onInsert: (json) {
+        onInsert(PostModel.fromJson(json));
+      },
+      onUpdate: (json) {
+        onUpdate(PostModel.fromJson(json));
+      },
+      onDelete: (json) {
+        onDelete(json['id']);
+      },
     );
   }
 }

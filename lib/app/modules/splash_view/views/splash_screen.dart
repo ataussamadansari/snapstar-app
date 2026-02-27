@@ -8,20 +8,13 @@ class SplashScreen extends GetView<SplashController> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
+    return Scaffold(
+      backgroundColor: Color(0xFFFAFAFA),
+      body: const Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.camera_alt, size: 60),
-            SizedBox(height: 12),
-            Text(
-              "SnapStar",
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Image(image: AssetImage("assets/images/logo.png")),
           ],
         ),
       ),
